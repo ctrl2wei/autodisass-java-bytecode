@@ -123,21 +123,27 @@ inside a jar archive, during auto-extraction."
     (message "Disassembled %s" class-file)
     (current-buffer)))
 
+(defun ad-java-bytecode-check-buffer ()
+  "Check that buffer is java class file,
+if it is, then ask for disassemble file."
+  (let ((class-file buffer-file-name))
+    (when (and class-file (ad-java-bytecode-disassemble-p class-file))
+      (ad-java-bytecode-buffer class-file))))
+
+(defun ad-java-bytecode-check-buffer-in-archive ()
+ "Check that buffer in archive file is java class file,
+if it is, then ask for disassemble file."
+  (let* ((components (split-string (buffer-file-name) ":"))
+         (jar-file   (car components))
+         (class-file (cadr components)))
+    (when (ad-java-bytecode-disassemble-p class-file)
+      (ad-java-bytecode-buffer class-file jar-file))))
 
 ;; Add hook for automatically disassembling .class files
-(add-hook 'find-file-hook
-          (lambda () (let ((class-file (buffer-file-name)))
-                       (when (and class-file (ad-java-bytecode-disassemble-p class-file))
-                         (ad-java-bytecode-buffer class-file)))))
+(add-hook 'find-file-hook 'ad-java-bytecode-check-buffer)
 
 ;; Add hook for automatically disassembling .class files inside jars
-(add-hook 'archive-extract-hooks
-          (lambda ()
-            (let* ((components (split-string (buffer-file-name) ":"))
-                   (jar-file   (car components))
-                   (class-file (cadr components)))
-              (when (ad-java-bytecode-disassemble-p class-file)
-                (ad-java-bytecode-buffer class-file jar-file)))))
+(add-hook 'archive-extract-hooks 'ad-java-bytecode-check-buffer-in-archive)
 
 
 (provide 'autodisass-java-bytecode)
