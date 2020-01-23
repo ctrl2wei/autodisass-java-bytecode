@@ -123,6 +123,7 @@ inside a jar archive, during auto-extraction."
     (message "Disassembled %s" class-file)
     (current-buffer)))
 
+;;;###autoload
 (defun ad-java-bytecode-check-buffer ()
   "Check that buffer is java class file,
 if it is, then ask for disassemble file."
@@ -130,6 +131,7 @@ if it is, then ask for disassemble file."
     (when (and class-file (ad-java-bytecode-disassemble-p class-file))
       (ad-java-bytecode-buffer class-file))))
 
+;;;###autoload
 (defun ad-java-bytecode-check-buffer-in-archive ()
  "Check that buffer in archive file is java class file,
 if it is, then ask for disassemble file."
@@ -140,9 +142,11 @@ if it is, then ask for disassemble file."
       (ad-java-bytecode-buffer class-file jar-file))))
 
 ;; Add hook for automatically disassembling .class files
+;;;###autoload
 (add-hook 'find-file-hook 'ad-java-bytecode-check-buffer)
 
 ;; Add hook for automatically disassembling .class files inside jars
+;;;###autoload
 (add-hook 'archive-extract-hooks 'ad-java-bytecode-check-buffer-in-archive)
 
 
