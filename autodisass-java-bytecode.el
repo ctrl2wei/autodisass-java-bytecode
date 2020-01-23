@@ -141,13 +141,28 @@ if it is, then ask for disassemble file."
     (when (ad-java-bytecode-disassemble-p class-file)
       (ad-java-bytecode-buffer class-file jar-file))))
 
-;; Add hook for automatically disassembling .class files
 ;;;###autoload
-(add-hook 'find-file-hook 'ad-java-bytecode-check-buffer)
+(defun ad-java-view (file)
+  "Decompile FILE and view buffer of decompiled contents."
+  (interactive (list (buffer-file-name)))
+  (pcase-let ((`(,jar ,file) (split-string file ":")))
+    (if file
+        (progn
+          (ad-java-bytecode-buffer file jar))
+      (progn
+        (ad-java-bytecode-buffer jar)))))
 
-;; Add hook for automatically disassembling .class files inside jars
 ;;;###autoload
-(add-hook 'archive-extract-hooks 'ad-java-bytecode-check-buffer-in-archive)
+(define-minor-mode ad-java-bytecode-mode
+  "Automatically disassembling Java class files."
+  :global t
+  (if jdecomp-mode
+      (progn
+        (add-hook 'find-file-hook #'ad-java-bytecode-check-buffer)
+        (add-hook 'archive-extract-hook #'ad-java-bytecode-check-buffer-in-archive))
+    (remove-hook 'find-file-hook #'ad-java-bytecode-check-buffer)
+    (remove-hook 'archive-extract-hook #'ad-java-bytecode-check-buffer-in-archive)))
+
 
 
 (provide 'autodisass-java-bytecode)
